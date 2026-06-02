@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetCalc — Calculateur réseau IPv4 & IPv6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07090f;
+  --bg2: #0d1117;
+  --bg3: #161b22;
+  --surface: #1c2128;
+  --surface2: #21262d;
+  --border: rgba(48,54,61,1);
+  --border2: rgba(99,110,123,0.4);
+  --accent: #58a6ff;
+  --accent2: #3fb950;
+  --accent3: #f78166;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --text3: #484f58;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Syne', sans-serif;
+  --r: 10px;
+  --r2: 6px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,9,15,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 58px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-family: var(--display); font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.logo span { color: var(--accent); }
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a { color: var(--text2); text-decoration: none; font-size: 14px; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+.nav-badge { font-size: 12px; background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.2); color: var(--accent); padding: 4px 12px; border-radius: 100px; }
+
+/* HERO */
+.hero {
+  max-width: 900px; margin: 0 auto;
+  padding: 60px 2rem 40px;
+  text-align: center;
+}
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 12px; color: var(--accent2);
+  background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.2);
+  padding: 4px 12px; border-radius: 100px; margin-bottom: 1.5rem;
+}
+.hero-tag::before { content: '●'; font-size: 8px; }
+h1 {
+  font-family: var(--display); font-size: clamp(36px, 5vw, 60px);
+  font-weight: 800; letter-spacing: -0.03em; color: var(--text);
+  margin-bottom: 1rem; line-height: 1.1;
+}
+h1 span { color: var(--accent); }
+.hero-sub { font-size: 17px; color: var(--text2); font-weight: 300; max-width: 560px; margin: 0 auto 2.5rem; }
+.hero-features { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 3rem; }
+.feat { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); }
+.feat-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* MAIN */
+main { max-width: 900px; margin: 0 auto; padding: 0 2rem 4rem; }
+
+/* TABS */
+.tabs {
+  display: flex; gap: 0;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 4px;
+  margin-bottom: 1.5rem; width: fit-content;
+}
+.tab {
+  padding: 8px 24px; border-radius: 7px;
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
+  color: var(--text2); cursor: pointer; border: none; background: transparent;
+  transition: all 0.2s; letter-spacing: 0.02em;
+}
+.tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
+
+/* CARD */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.card-title {
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+}
+.card-title::before { content: ''; display: block; width: 3px; height: 12px; background: var(--accent); border-radius: 2px; }
+
+/* FORM */
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+.row3 { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
+.row3v6 { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+label { font-family: var(--mono); font-size: 11px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; }
+input, select {
+  padding: 9px 12px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r2); color: var(--text);
+  font-family: var(--mono); font-size: 13px;
+  outline: none; transition: border-color 0.15s; width: 100%;
+}
+input:focus, select:focus { border-color: var(--accent); }
+select option { background: var(--bg3); }
+.del-btn {
+  width: 34px; height: 34px; flex-shrink: 0;
+  background: rgba(247,129,102,0.08); border: 1px solid rgba(247,129,102,0.2);
+  border-radius: var(--r2); color: var(--accent3);
+  font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.del-btn:hover { background: rgba(247,129,102,0.15); }
+.col-hdr { font-family: var(--mono); font-size: 11px; color: var(--text3); letter-spacing: 0.06em; }
+.subnet-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.subnet-label { font-family: var(--mono); font-size: 12px; color: var(--text2); }
+.btn-group { display: flex; gap: 6px; }
+.add-btn {
+  padding: 6px 14px;
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r2); color: var(--text2);
+  font-family: var(--mono); font-size: 12px; cursor: pointer;
+  transition: all 0.15s;
+}
+.add-btn:hover { border-color: var(--accent); color: var(--accent); }
+.calc-btn {
+  width: 100%; padding: 11px;
+  background: var(--accent); color: #000;
+  border: none; border-radius: var(--r2);
+  font-family: var(--display); font-size: 15px; font-weight: 700;
+  cursor: pointer; margin-top: 10px; transition: opacity 0.15s;
+  letter-spacing: -0.01em;
+}
+.calc-btn:hover { opacity: 0.88; }
+.err { color: var(--accent3); font-family: var(--mono); font-size: 12px; padding: 6px 0; }
+
+/* RESULTS */
+.results-section { margin-top: 0.5rem; }
+.results-title {
+  font-family: var(--mono); font-size: 11px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+}
+.results-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 8px; margin-bottom: 1.25rem; }
+.scard { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r2); padding: 0.85rem 1rem; }
+.scard-label { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.scard-val { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--text); }
+.subnet-result {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r); margin-bottom: 0.75rem; overflow: hidden;
+}
+.sr-header {
+  padding: 10px 1.25rem; background: var(--bg3);
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.sr-name { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--text); }
+.sr-badges { display: flex; gap: 6px; align-items: center; }
+.badge { font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 4px; }
+.b-lan { background: rgba(63,185,80,0.12); color: var(--accent2); border: 1px solid rgba(63,185,80,0.2); }
+.b-wan { background: rgba(88,166,255,0.1); color: var(--accent); border: 1px solid rgba(88,166,255,0.2); }
+.b-cidr { background: rgba(210,153,34,0.12); color: #e3b341; border: 1px solid rgba(210,153,34,0.2); }
+.b-v6 { background: rgba(188,140,255,0.1); color: #bc8cff; border: 1px solid rgba(188,140,255,0.2); }
+.sr-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; table-layout: fixed; }
+.sr-table tr { border-bottom: 1px solid var(--border); }
+.sr-table tr:last-child { border-bottom: none; }
+.sr-table td { padding: 7px 1.25rem; color: var(--text); word-break: break-all; }
+.sr-table td:first-child { color: var(--text3); width: 42%; }
+.sr-table .highlight { color: var(--accent); font-weight: 500; }
+.info-box { background: var(--bg3); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--r2); padding: 0.75rem 1rem; font-family: var(--mono); font-size: 12px; color: var(--text2); margin-bottom: 1rem; }
+.v6-info-box { border-left-color: #bc8cff; }
+
+/* FOOTER */
+footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; }
+.footer-logo { font-family: var(--display); font-size: 16px; font-weight: 800; color: var(--text2); margin-bottom: 0.5rem; }
+.footer-logo span { color: var(--accent); }
+footer p { font-family: var(--mono); font-size: 12px; color: var(--text3); }
+
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.fade-in { animation: fadeIn 0.3s ease both; }
+
+@media (max-width: 600px) {
+  .row2 { grid-template-columns: 1fr; }
+  .row3 { grid-template-columns: 1fr 1fr auto; }
+  .row3 .field:nth-child(2) { display: none; }
+  .hero-features { gap: 1rem; }
+  nav .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Net<span>Calc</span></div>
+  <div class="nav-links">
+    <a href="#ipv4">IPv4 / VLSM</a>
+    <a href="#ipv6">IPv6</a>
+    <a href="https://github.com" target="_blank">GitHub</a>
+  </div>
+  <div class="nav-badge">v1.0 · Gratuit</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Outil réseau open source</div>
+  <h1>Calculateur <span>réseau</span><br>IPv4 & IPv6</h1>
+  <p class="hero-sub">Sous-réseaux, masques, broadcast, plages d'hôtes — calcul VLSM automatique en quelques secondes.</p>
+  <div class="hero-features">
+    <div class="feat"><div class="feat-dot" style="background:#58a6ff"></div>VLSM automatique</div>
+    <div class="feat"><div class="feat-dot" style="background:#3fb950"></div>IPv4 & IPv6</div>
+    <div class="feat"><div class="feat-dot" style="background:#e3b341"></div>Broadcast & masques</div>
+    <div class="feat"><div class="feat-dot" style="background:#bc8cff"></div>Point à point WAN</div>
+  </div>
+</div>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('v4',this)">IPv4 / VLSM</button>
+    <button class="tab" onclick="switchTab('v6',this)">IPv6</button>
+  </div>
+
+  <!-- IPv4 -->
+  <div id="tab-v4">
+    <div class="card" id="ipv4">
+      <div class="card-title">Réseau principal</div>
+      <div class="row2">
+        <div class="field">
+          <label>Adresse réseau</label>
+          <input type="text" id="v4-ip" value="172.30.64.0" placeholder="ex: 192.168.1.0">
+        </div>
+        <div class="field">
+          <label>Préfixe CIDR</label>
+          <select id="v4-cidr">
+            <option value="8">/8 — 255.0.0.0</option>
+            <option value="16">/16 — 255.255.0.0</option>
+            <option value="17">/17 — 255.255.128.0</option>
+            <option value="18">/18 — 255.255.192.0</option>
+            <option value="19">/19 — 255.255.224.0</option>
+            <option value="20" selected>/20 — 255.255.240.0</option>
+            <option value="21">/21 — 255.255.248.0</option>
+            <option value="22">/22 — 255.255.252.0</option>
+            <option value="23">/23 — 255.255.254.0</option>
+            <option value="24">/24 — 255.255.255.0</option>
+            <option value="25">/25 — 255.255.255.128</option>
+            <option value="26">/26 — 255.255.255.192</option>
+            <option value="27">/27 — 255.255.255.224</option>
+            <option value="28">/28 — 255.255.255.240</option>
+            <option value="29">/29 — 255.255.255.248</option>
+            <option value="30">/30 — 255.255.255.252</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin-top:1rem">Sous-réseaux à allouer</div>
+      <div class="subnet-controls">
+        <span class="subnet-label">Liste des sous-réseaux</span>
+        <div class="btn-group">
+          <button class="add-btn" onclick="addV4('LAN')">+ LAN</button>
+          <button class="add-btn" onclick="addV4('WAN')">+ WAN (P2P)</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:6px;padding:0 2px">
+        <span class="col-hdr">Nom</span>
+        <span class="col-hdr">Hôtes requis</span>
+        <span class="col-hdr">Type</span>
+        <span></span>
+      </div>
+      <div id="v4-list"></div>
+      <div id="v4-err" class="err"></div>
+      <button class="calc-btn" onclick="calcV4()">Calculer les sous-réseaux →</button>
+    </div>
+    <div id="v4-results" class="results-section"></div>
+  </div>
+
+  <!-- IPv6 -->
+  <div id="tab-v6" style="display:none">
+    <div class="card" id="ipv6">
+      <div class="card-title">Réseau principal IPv6</div>
+      <div class="info-box v6-info-box">En IPv6, chaque sous-réseau reçoit un /64 standard. Un /48 offre 65 536 sous-réseaux. Il n'y a pas de broadcast — remplacé par le multicast.</div>
+      <div class="row2">
+        <div class="field">
+          <label>Adresse IPv6</label>
+          <input type="text" id="v6-ip" value="2001:db8::" placeholder="ex: 2001:db8::">
+        </div>
+        <div class="field">
+          <label>Préfixe</label>
+          <select id="v6-cidr">
+            <option value="32">/32 — Attribution FAI</option>
+            <option value="40">/40</option>
+            <option value="48" selected>/48 — Site entreprise</option>
+            <option value="56">/56 — Réseau PME</option>
+            <option value="60">/60</option>
+            <option value="64">/64 — LAN standard</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin-top:1rem">Sous-réseaux</div>
+      <div class="subnet-controls">
+        <span class="subnet-label">Liste des sous-réseaux</span>
+        <button class="add-btn" onclick="addV6()">+ Ajouter sous-réseau</button>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:8px;margin-bottom:6px;padding:0 2px">
+        <span class="col-hdr">Nom</span>
+        <span class="col-hdr">Type</span>
+        <span></span>
+      </div>
+      <div id="v6-list"></div>
+      <div id="v6-err" class="err"></div>
+      <button class="calc-btn" onclick="calcV6()">Calculer les sous-réseaux IPv6 →</button>
+    </div>
+    <div id="v6-results" class="results-section"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-logo">Net<span>Calc</span></div>
+  <p>Calculateur réseau IPv4 & IPv6 · VLSM · Open source · Gratuit</p>
+</footer>
+
+<script>
+let v4subs = [
+  {name:'Sous-réseau A', hosts:12, type:'LAN'},
+  {name:'Sous-réseau B', hosts:50, type:'LAN'},
+  {name:'Sous-réseau C', hosts:15, type:'LAN'},
+  {name:'Sous-réseau D', hosts:2,  type:'WAN'}
+];
+let v6subs = [
+  {name:'Réseau bureaux',  type:'LAN'},
+  {name:'Réseau serveurs', type:'LAN'},
+  {name:'Lien WAN',        type:'WAN'},
+  {name:'Réseau invités',  type:'LAN'}
+];
+
+function switchTab(t, btn) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-v4').style.display = t==='v4' ? 'block' : 'none';
+  document.getElementById('tab-v6').style.display = t==='v6' ? 'block' : 'none';
+}
+
+function renderV4() {
+  document.getElementById('v4-list').innerHTML = v4subs.map((s,i) => `
+    <div class="row3">
+      <input type="text" value="${s.name}" oninput="v4subs[${i}].name=this.value" placeholder="Nom">
+      <input type="number" value="${s.hosts}" min="1" max="65534" oninput="v4subs[${i}].hosts=parseInt(this.value)||1" placeholder="Hôtes">
+      <select onchange="v4subs[${i}].type=this.value">
+        <option value="LAN" ${s.type==='LAN'?'selected':''}>LAN</option>
+        <option value="WAN" ${s.type==='WAN'?'selected':''}>WAN</option>
+      </select>
+      <button class="del-btn" onclick="v4subs.splice(${i},1);renderV4()">×</button>
+    </div>`).join('');
+}
+
+function addV4(type) {
+  v4subs.push({name:'Sous-réseau '+(v4subs.length+1), hosts:type==='WAN'?2:10, type});
+  renderV4();
+}
+
+function renderV6() {
+  document.getElementById('v6-list').innerHTML = v6subs.map((s,i) => `
+    <div class="row3v6">
+      <input type="text" value="${s.name}" oninput="v6subs[${i}].name=this.value" placeholder="Nom">
+      <select onchange="v6subs[${i}].type=this.value">
+        <option value="LAN" ${s.type==='LAN'?'selected':''}>LAN</option>
+        <option value="WAN" ${s.type==='WAN'?'selected':''}>WAN</option>
+      </select>
+      <button class="del-btn" onclick="v6subs.splice(${i},1);renderV6()">×</button>
+    </div>`).join('');
+}
+
+function addV6() {
+  v6subs.push({name:'Réseau '+(v6subs.length+1), type:'LAN'});
+  renderV6();
+}
+
+function ipToInt(ip) { return ip.split('.').reduce((a,o)=>(a<<8)+parseInt(o),0)>>>0; }
+function intToIp(n) { return [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.'); }
+function cidrToMask(c) { return c===0 ? 0 : (0xFFFFFFFF<<(32-c))>>>0; }
+function nextPow2(n) { let p=1; while(p<n) p<<=1; return p; }
+
+function calcV4() {
+  const err = document.getElementById('v4-err');
+  err.textContent = '';
+  const ipStr = document.getElementById('v4-ip').value.trim();
+  const cidr  = parseInt(document.getElementById('v4-cidr').value);
+  if (!/^\d+\.\d+\.\d+\.\d+$/.test(ipStr)) { err.textContent='Adresse IP invalide.'; return; }
+  if (!v4subs.length) { err.textContent='Ajoute au moins un sous-réseau.'; return; }
+
+  const baseIp = ipToInt(ipStr);
+  const baseMask = cidrToMask(cidr);
+  const networkAddr = (baseIp & baseMask) >>> 0;
+  const totalAddr = Math.pow(2, 32-cidr);
+  const sorted = [...v4subs].sort((a,b) => b.hosts - a.hosts);
+
+  let cur = networkAddr, results = [], used = 0;
+  for (const s of sorted) {
+    const needed = s.type==='WAN' ? 4 : s.hosts+2;
+    const block  = nextPow2(needed);
+    const sc     = 32 - Math.log2(block);
+    const mask   = cidrToMask(sc);
+    const net    = cur;
+    const bc     = (net + block - 1) >>> 0;
+    results.push({
+      name: s.name, type: s.type, hostsReq: s.hosts,
+      network: intToIp(net), cidr: sc,
+      mask: intToIp(mask),
+      first: intToIp(net+1),
+      last:  intToIp(net+block-2),
+      broadcast: intToIp(bc),
+      usable: block-2, block
+    });
+    cur = (bc+1) >>> 0; used += block;
+  }
+
+  const totalUsable = results.reduce((a,r) => a+r.usable, 0);
+  const remaining   = totalAddr - used;
+
+  let html = `<div class="results-title fade-in">Résultats IPv4 — ${ipStr}/${cidr}</div>
+  <div class="summary-grid fade-in">
+    <div class="scard"><div class="scard-label">Plage totale</div><div class="scard-val">${totalAddr.toLocaleString()}</div></div>
+    <div class="scard"><div class="scard-label">Hôtes utilisables</div><div class="scard-val">${totalUsable.toLocaleString()}</div></div>
+    <div class="scard"><div class="scard-label">Sous-réseaux</div><div class="scard-val">${results.length}</div></div>
+    <div class="scard"><div class="scard-label">Adresses libres</div><div class="scard-val">${remaining.toLocaleString()}</div></div>
+  </div>
+  <div class="info-box fade-in">Méthode VLSM — sous-réseaux triés du plus grand au plus petit. Chaque bloc est la puissance de 2 minimale couvrant les hôtes requis + réseau + broadcast.</div>`;
+
+  for (const r of results) {
+    html += `<div class="subnet-result fade-in">
+      <div class="sr-header">
+        <span class="sr-name">${r.name}</span>
+        <div class="sr-badges">
+          <span class="badge b-cidr">/${r.cidr}</span>
+          <span class="badge ${r.type==='LAN'?'b-lan':'b-wan'}">${r.type}${r.type==='WAN'?' · P2P':''}</span>
+        </div>
+      </div>
+      <table class="sr-table">
+        <tr><td>Adresse réseau</td><td class="highlight">${r.network}/${r.cidr}</td></tr>
+        <tr><td>Masque sous-réseau</td><td>${r.mask}</td></tr>
+        <tr><td>Passerelle (1er hôte)</td><td>${r.first}</td></tr>
+        <tr><td>Dernier hôte</td><td>${r.last}</td></tr>
+        <tr><td>Adresse broadcast</td><td>${r.broadcast}</td></tr>
+        <tr><td>Hôtes utilisables</td><td>${r.usable} <span style="color:var(--text3)">(requis : ${r.hostsReq})</span></td></tr>
+        <tr><td>Taille du bloc</td><td>${r.block} adresses</td></tr>
+      </table>
+    </div>`;
+  }
+
+  document.getElementById('v4-results').innerHTML = html;
+  document.getElementById('v4-results').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function calcV6() {
+  const err = document.getElementById('v6-err');
+  err.textContent = '';
+  const ipStr  = document.getElementById('v6-ip').value.trim();
+  const prefix = parseInt(document.getElementById('v6-cidr').value);
+  if (!v6subs.length) { err.textContent='Ajoute au moins un sous-réseau.'; return; }
+
+  const subBits  = 64 - prefix;
+  const maxSubs  = subBits >= 0 ? Math.pow(2, subBits) : 0;
+  if (v6subs.length > maxSubs) { err.textContent=`Maximum ${maxSubs} sous-réseaux avec /${prefix}.`; return; }
+
+  const basePrefix = ipStr.split('::')[0] || '2001:db8';
+
+  let html = `<div class="results-title fade-in">Résultats IPv6 — ${ipStr}/${prefix}</div>
+  <div class="summary-grid fade-in">
+    <div class="scard"><div class="scard-label">Préfixe réseau</div><div class="scard-val">/${prefix}</div></div>
+    <div class="scard"><div class="scard-label">Préfixe sous-réseau</div><div class="scard-val">/64</div></div>
+    <div class="scard"><div class="scard-label">Sous-réseaux dispo</div><div class="scard-val">${maxSubs.toLocaleString()}</div></div>
+    <div class="scard"><div class="scard-label">Hôtes / sous-réseau</div><div class="scard-val">2⁶⁴</div></div>
+  </div>
+  <div class="info-box v6-info-box fade-in">Chaque /64 contient 2⁶⁴ ≈ 18,4 × 10¹⁸ adresses. Pas de broadcast en IPv6 — remplacé par le multicast ff02::1 (tous les nœuds du lien).</div>`;
+
+  for (let i = 0; i < v6subs.length; i++) {
+    const s = v6subs[i];
+    const subnetId = i.toString(16).padStart(4,'0');
+    const network  = `${basePrefix}:${subnetId}::/64`;
+    const first    = `${basePrefix}:${subnetId}::1`;
+    const last     = `${basePrefix}:${subnetId}::ffff:ffff:ffff:fffe`;
+    const anycast  = `${basePrefix}:${subnetId}::`;
+    const linkLocal = `fe80::1`;
+
+    html += `<div class="subnet-result fade-in">
+      <div class="sr-header">
+        <span class="sr-name">${s.name}</span>
+        <div class="sr-badges">
+          <span class="badge b-v6">/64</span>
+          <span class="badge ${s.type==='LAN'?'b-lan':'b-wan'}">${s.type}${s.type==='WAN'?' · P2P':''}</span>
+        </div>
+      </div>
+      <table class="sr-table">
+        <tr><td>Adresse réseau</td><td class="highlight">${network}</td></tr>
+        <tr><td>ID sous-réseau</td><td>${subnetId} (sous-réseau n°${i+1})</td></tr>
+        <tr><td>Premier hôte</td><td>${first}</td></tr>
+        <tr><td>Dernier hôte</td><td>${last}</td></tr>
+        <tr><td>Adresse anycast réseau</td><td>${anycast}</td></tr>
+        <tr><td>Multicast (≈ broadcast)</td><td>ff02::1 — tous les nœuds</td></tr>
+        <tr><td>Lien local (router)</td><td>${linkLocal}</td></tr>
+        <tr><td>Hôtes utilisables</td><td>2⁶⁴ − 2 ≈ 1,84 × 10¹⁹</td></tr>
+      </table>
+    </div>`;
+  }
+
+  document.getElementById('v6-results').innerHTML = html;
+  document.getElementById('v6-results').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+renderV4(); renderV6(); calcV4();
+</script>
+</body>
+</html>
